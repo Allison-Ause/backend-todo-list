@@ -44,7 +44,7 @@ describe('user routes', () => {
     await agent.post('/api/v1/users').send(existingUser);
 
     const res = await agent.get('/api/v1/users/me');
-    console.log('res.body from /me', res.body);
+
     expect(res.status).toBe(200);
     expect(res.body.email).toEqual('allison@works.com');
   });
