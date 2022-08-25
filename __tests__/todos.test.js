@@ -55,7 +55,6 @@ describe('todo routes', () => {
     await agent.post('/api/v1/users/sessions').send(existingUser);
 
     const todo = await Todos.addTodo(testTodo);
-    console.log('ADDED TODO', todo);
     const res = await agent
       .put(`/api/v1/todos/${todo.id}`)
       .send({ bought: true });
