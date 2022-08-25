@@ -10,11 +10,12 @@ const testUser = {
   password: 'iloverey',
 };
 
-// const testTodo = {
-//   user_id: 1,
-//   item: 'Take a nap.',
-//   bought: false,
-// };
+const existingUser = {
+  firstName: 'Baba',
+  lastName: 'Yaga',
+  email: 'russian@witch.com',
+  password: 'fakePasswordHash',
+};
 
 describe('todo routes', () => {
   beforeEach(() => {
@@ -29,7 +30,25 @@ describe('todo routes', () => {
     expect(res.status).toBe(200);
     expect(res.body.length).toEqual(0);
   });
+  it('#POST /todos adds new todo', async () => {
+    const testTodo = {
+      user_id: '1',
+      item: 'fetch new bundle of sticks',
+      bought: false,
+    };
 
+    const agent = request.agent(app);
+    await agent.post('/api/v1/users/sessions').send(existingUser);
+
+    const res = await agent.post('/api/v1/todos').send(testTodo);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      ...testTodo,
+      created_at: expect.any(String),
+    });
+  });
   afterAll(() => {
     pool.end();
   });
