@@ -2,6 +2,7 @@ const pool = require('../lib/utils/pool');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
+const Todos = require('../lib/models/Todos');
 
 const testUser = {
   firstName: 'Kylo',
@@ -15,6 +16,12 @@ const existingUser = {
   lastName: 'Yaga',
   email: 'russian@witch.com',
   password: 'fakePasswordHash',
+};
+
+const testTodo = {
+  user_id: '1',
+  item: 'fetch new bundle of sticks',
+  bought: false,
 };
 
 describe('todo routes', () => {
@@ -31,12 +38,6 @@ describe('todo routes', () => {
     expect(res.body.length).toEqual(0);
   });
   it('#POST /todos adds new todo', async () => {
-    const testTodo = {
-      user_id: '1',
-      item: 'fetch new bundle of sticks',
-      bought: false,
-    };
-
     const agent = request.agent(app);
     await agent.post('/api/v1/users/sessions').send(existingUser);
 
@@ -47,6 +48,23 @@ describe('todo routes', () => {
       id: expect.any(String),
       ...testTodo,
       created_at: expect.any(String),
+    });
+  });
+  it('/PUT /todos marks todo as bought: true', async () => {
+    const agent = request.agent(app);
+    await agent.post('/api/v1/users/sessions').send(existingUser);
+
+    const todo = await Todos.addTodo(testTodo);
+    console.log('ADDED TODO', todo);
+    const res = await agent
+      .put(`/api/v1/todos/${todo.id}`)
+      .send({ bought: true });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      ...todo,
+      created_at: expect.any(String),
+      bought: true,
     });
   });
   afterAll(() => {
